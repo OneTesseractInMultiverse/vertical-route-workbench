@@ -3,11 +3,14 @@ import { countryOptions, normalizeCountryName } from "../../src/domain/countries
 
 describe("country metadata", () => {
   it("includes Costa Rica", () => {
-    expect(countryOptions.some((country) => country.name === "Costa Rica")).toBe(true);
+    expect(countryOptions.find((country) => country.name === "Costa Rica")).toEqual({
+      code: "CR",
+      name: "Costa Rica"
+    });
   });
 
   it("excludes dependent territories", () => {
-    expect(countryOptions.some((country) => country.name === "Guam")).toBe(false);
+    expect(countryOptions.find((country) => country.name === "Guam")).toBeUndefined();
   });
 
   it("normalizes country names to canonical casing", () => {

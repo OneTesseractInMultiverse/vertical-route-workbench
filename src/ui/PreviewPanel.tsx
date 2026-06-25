@@ -6,6 +6,7 @@ type PreviewPanelProps = {
   svg: string;
 };
 
+/** Renders the generated topo SVG, VRL source, and compiler diagnostics side by side. */
 export function PreviewPanel({ diagnostics, source, svg }: PreviewPanelProps) {
   return (
     <aside className="glass-panel preview-panel" aria-label="Topo preview">
@@ -28,6 +29,7 @@ export function PreviewPanel({ diagnostics, source, svg }: PreviewPanelProps) {
   );
 }
 
+/** Renders a clean state or the current list of preview diagnostics. */
 function DiagnosticList({ diagnostics }: { diagnostics: PreviewDiagnostic[] }) {
   if (diagnostics.length === 0) {
     return <p className="diagnostic is-clean">No diagnostics</p>;

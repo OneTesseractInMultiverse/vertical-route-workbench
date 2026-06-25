@@ -51,7 +51,7 @@ describe("VRL serializer", () => {
   });
 
   it("serializes route metadata", () => {
-    expect(serializeMetadata(createInitialRouteDocument().metadata)).toContain('country="Costa Rica"');
+    expect(serializeMetadata(createInitialRouteDocument().metadata)).toBe('  metadata difficulty="V3 A3 II" region=Cartago country="Costa Rica" entrance_elevation=1300m exit_elevation=1100m');
   });
 
   it("serializes note elements through note syntax", () => {
@@ -67,7 +67,7 @@ describe("VRL serializer", () => {
   });
 
   it("serializes obstacle ids and attributes", () => {
-    expect(serializeElement(createRouteElement("rappel", deterministicIds("rappel")), "R1")).toContain("rappel R1 height=20m");
+    expect(serializeElement(createRouteElement("rappel", deterministicIds("rappel")), "R1")).toBe("rappel R1 height=20m rope=40m anchor=bolts anchor_count=2 station=center landing=pool inclination=100% shape=ladder flow=low");
   });
 
   it("uses preserved VRL ids when serializing imported elements", () => {
@@ -80,7 +80,15 @@ describe("VRL serializer", () => {
   });
 
   it("serializes a full document", () => {
-    expect(serializeRouteDocument(documentWithRappel())).toContain("rappel R1 height=20m rope=40m");
+    expect(serializeRouteDocument(documentWithRappel())).toBe([
+      'route "Quebrada Gata" {',
+      '  metadata difficulty="V3 A3 II" region=Cartago country="Costa Rica" entrance_elevation=1300m exit_elevation=1100m',
+      '  start "Entrance"',
+      '  rappel R1 height=20m rope=40m anchor=bolts anchor_count=2 station=center landing=pool inclination=100% shape=ladder flow=low',
+      '  exit "Exit"',
+      '}',
+      ''
+    ].join("\n"));
   });
 });
 

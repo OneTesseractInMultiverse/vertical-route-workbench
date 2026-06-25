@@ -58,14 +58,17 @@ const obstacleDefinitions = {
   exit: definition("exit", "OUT", "Exit", "Route exit", "#198038", "Exit", [])
 } satisfies Record<ElementType, ObstacleDefinition>;
 
+/** Returns every grammar element the editor knows how to display or serialize. */
 export function allObstacleDefinitions(): ObstacleDefinition[] {
   return Object.values(obstacleDefinitions);
 }
 
+/** Returns only the obstacle types that users can insert between start and exit. */
 export function draggableObstacleDefinitions(): ObstacleDefinition[] {
   return allObstacleDefinitions().filter((definitionItem) => definitionItem.type !== "start" && definitionItem.type !== "exit");
 }
 
+/** Maps an element type to the standard compact VRL/topo prefix used for generated IDs. */
 export function elementPrefix(type: ElementType): string {
   const prefixes = {
     climb: "C",
@@ -82,14 +85,17 @@ export function elementPrefix(type: ElementType): string {
   return prefixes[type];
 }
 
+/** Looks up the full catalog definition for a route element type. */
 export function obstacleDefinition(type: ElementType): ObstacleDefinition {
   return obstacleDefinitions[type];
 }
 
+/** Creates a fresh attribute record populated with the catalog defaults for the element type. */
 export function defaultAttributesFor(type: ElementType): Record<string, string> {
   return Object.fromEntries(obstacleDefinition(type).fields.map((fieldDefinition) => [fieldDefinition.name, fieldDefinition.defaultValue]));
 }
 
+/** Builds immutable catalog entries with the shared field shape used by UI and domain code. */
 function definition(
   type: ElementType,
   symbol: string,
@@ -110,6 +116,7 @@ function definition(
   };
 }
 
+/** Builds one editable field declaration for an obstacle definition. */
 function field(
   name: string,
   label: string,

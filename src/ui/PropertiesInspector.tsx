@@ -10,6 +10,7 @@ type PropertiesInspectorProps = {
   onMove: (editorId: string, direction: -1 | 1) => void;
 };
 
+/** Renders editable fields for the selected route element and exposes move/delete commands. */
 export function PropertiesInspector({
   element,
   onAttributeChange,
@@ -59,6 +60,7 @@ export function PropertiesInspector({
   );
 }
 
+/** Renders the correct form control for one catalog field definition. */
 function FieldControl({
   fieldDefinition,
   onChange,
@@ -96,6 +98,7 @@ function FieldControl({
   );
 }
 
+/** Chooses mobile/desktop keyboard hints for numeric inspector fields. */
 function inputModeFor(fieldDefinition: FieldDefinition): React.HTMLAttributes<HTMLInputElement>["inputMode"] {
   return fieldDefinition.kind === "number" ? "numeric" : "text";
 }

@@ -39,10 +39,34 @@ describe("obstacle catalog", () => {
   });
 
   it("returns the rappel field schema", () => {
-    expect(obstacleDefinition("rappel").fields.map((field) => field.name)).toContain("redirections");
+    expect(obstacleDefinition("rappel").fields.map((field) => [field.name, field.kind, field.defaultValue, field.required])).toEqual([
+      ["height", "measurement", "20m", true],
+      ["rope", "measurement", "40m", true],
+      ["anchor", "select", "bolts", false],
+      ["anchor_count", "number", "2", false],
+      ["station", "select", "center", false],
+      ["landing", "select", "pool", false],
+      ["inclination", "percentage", "100%", false],
+      ["shape", "select", "ladder", false],
+      ["stages", "text", "", false],
+      ["redirections", "text", "", false],
+      ["flow", "select", "low", false]
+    ]);
   });
 
   it("creates default field values for a rappel", () => {
-    expect(defaultAttributesFor("rappel")).toMatchObject({ height: "20m", rope: "40m" });
+    expect(defaultAttributesFor("rappel")).toEqual({
+      anchor: "bolts",
+      anchor_count: "2",
+      flow: "low",
+      height: "20m",
+      inclination: "100%",
+      landing: "pool",
+      redirections: "",
+      rope: "40m",
+      shape: "ladder",
+      stages: "",
+      station: "center"
+    });
   });
 });

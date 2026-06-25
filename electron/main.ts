@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const developmentServerUrl = "http://127.0.0.1:5173";
 
+/** Creates the main application window and points it to Vite in development or built assets in production. */
 function createMainWindow(): void {
   const developmentIcon = app.isPackaged ? undefined : join(currentDirectory, "../build/icon.png");
   const mainWindow = new BrowserWindow({
@@ -32,12 +33,15 @@ function createMainWindow(): void {
   void mainWindow.loadURL(developmentServerUrl);
 }
 
+/** Registers the IPC handlers used by the renderer file gateway. */
 function registerFileHandlers(): void {
   ipcMain.handle("vrl:open", openRouteFile);
   ipcMain.handle("vrl:save", saveRouteFile);
   ipcMain.handle("vrl:save-as", saveRouteFileAs);
+  ipcMain.handle("vrl:save-png", savePngFile);
 }
 
+/** Opens a native `.vrl` file picker and returns the selected file contents. */
 async function openRouteFile(): Promise<FileOpenResult> {
   const result = await dialog.showOpenDialog({
     filters: [{ extensions: ["vrl"], name: "VRL route" }],
@@ -54,6 +58,7 @@ async function openRouteFile(): Promise<FileOpenResult> {
   return { canceled: false, filePath, source };
 }
 
+/** Saves route source to an existing file path or asks the user for one. */
 async function saveRouteFile(_event: unknown, payload: FileSavePayload): Promise<FileSaveResult> {
   const targetPath = payload.filePath ?? await selectSavePath();
 
@@ -66,6 +71,7 @@ async function saveRouteFile(_event: unknown, payload: FileSavePayload): Promise
   return { canceled: false, filePath: targetPath };
 }
 
+/** Saves route source through an explicit save-as dialog. */
 async function saveRouteFileAs(_event: unknown, payload: FileSavePayload): Promise<FileSaveResult> {
   const targetPath = await selectSavePath();
 
@@ -78,10 +84,34 @@ async function saveRouteFileAs(_event: unknown, payload: FileSavePayload): Promi
   return { canceled: false, filePath: targetPath };
 }
 
+/** Saves exported PNG bytes through a native PNG save dialog. */
+async function savePngFile(_event: unknown, payload: PngSavePayload): Promise<FileSaveResult> {
+  const targetPath = await selectPngSavePath(payload.defaultPath);
+
+  if (targetPath === null) {
+    return { canceled: true };
+  }
+
+  await writeFile(targetPath, Buffer.from(payload.data));
+
+  return { canceled: false, filePath: targetPath };
+}
+
+/** Opens the native save dialog for `.vrl` route files. */
 async function selectSavePath(): Promise<null | string> {
   const result = await dialog.showSaveDialog({
     defaultPath: "route.vrl",
     filters: [{ extensions: ["vrl"], name: "VRL route" }]
+  });
+
+  return result.canceled ? null : result.filePath;
+}
+
+/** Opens the native save dialog for PNG image exports. */
+async function selectPngSavePath(defaultPath: string): Promise<null | string> {
+  const result = await dialog.showSaveDialog({
+    defaultPath,
+    filters: [{ extensions: ["png"], name: "PNG image" }]
   });
 
   return result.canceled ? null : result.filePath;
@@ -116,3 +146,8 @@ type FileSavePayload = {
 type FileSaveResult =
   | { canceled: true }
   | { canceled: false; filePath: string };
+
+type PngSavePayload = {
+  data: Uint8Array;
+  defaultPath: string;
+};

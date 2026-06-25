@@ -9,6 +9,7 @@ const metadataFields = [
   "exit_elevation"
 ] satisfies readonly (keyof RouteMetadata)[];
 
+/** Serializes the complete editable route document into a `.vrl` source file. */
 export function serializeRouteDocument(document: RouteDocument): string {
   return [
     `route ${quoteValue(document.routeName)} {`,
@@ -18,6 +19,7 @@ export function serializeRouteDocument(document: RouteDocument): string {
   ].filter(Boolean).join("\n").concat("\n");
 }
 
+/** Serializes publishable route metadata into one VRL metadata statement. */
 export function serializeMetadata(metadata: RouteMetadata): string {
   const attributes = metadataFields
     .map((fieldName) => serializeAttribute(fieldName, metadata[fieldName]))
@@ -26,6 +28,7 @@ export function serializeMetadata(metadata: RouteMetadata): string {
   return attributes.length === 0 ? "" : `  metadata ${attributes.join(" ")}`;
 }
 
+/** Serializes route elements while maintaining per-type sequence counters for generated IDs. */
 export function serializeElements(elements: RouteElement[]): string[] {
   const counters = createElementCounters();
 
@@ -35,6 +38,7 @@ export function serializeElements(elements: RouteElement[]): string[] {
   });
 }
 
+/** Serializes one route element using either endpoint labels, generated IDs, or note syntax. */
 export function serializeElement(element: RouteElement, vrlId: string): string {
   if (element.type === "note") {
     return `note ${quoteValue(element.attributes.text ?? "")}`;
@@ -47,6 +51,7 @@ export function serializeElement(element: RouteElement, vrlId: string): string {
   return parts.join(" ");
 }
 
+/** Serializes an attribute record and drops empty optional values. */
 export function serializeAttributeRecord(attributes: Record<string, string>): string {
   return Object.entries(attributes)
     .map(([fieldName, value]) => serializeAttribute(fieldName, value))
@@ -54,18 +59,22 @@ export function serializeAttributeRecord(attributes: Record<string, string>): st
     .join(" ");
 }
 
+/** Serializes one key-value attribute or omits it when the value is empty. */
 export function serializeAttribute(fieldName: string, value: string): string {
   return value === "" ? "" : `${fieldName}=${quoteAttributeValue(value)}`;
 }
 
+/** Quotes a general VRL string value and escapes embedded quotes and backslashes. */
 export function quoteValue(value: string): string {
   return `"${escapeQuotedValue(value)}"`;
 }
 
+/** Quotes an attribute value only when VRL syntax requires quoting. */
 export function quoteAttributeValue(value: string): string {
   return needsQuotes(value) ? quoteValue(value) : value;
 }
 
+/** Creates per-element counters for generated VRL IDs. */
 function createElementCounters(): Record<ElementType, number> {
   return {
     climb: 0,
@@ -80,14 +89,17 @@ function createElementCounters(): Record<ElementType, number> {
   };
 }
 
+/** Chooses a preserved imported VRL ID or generates one from element type and sequence. */
 function generatedElementId(element: RouteElement, sequence: number): string {
   return element.vrlId === "" ? generatedVrlId(element.type, sequence) : element.vrlId;
 }
 
+/** Escapes characters that are significant inside quoted VRL strings. */
 function escapeQuotedValue(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+/** Detects attribute values that must be quoted to remain valid VRL. */
 function needsQuotes(value: string): boolean {
   return /\s|#|"/.test(value);
 }

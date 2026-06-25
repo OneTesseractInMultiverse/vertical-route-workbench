@@ -29,10 +29,12 @@ const nodeTypes = {
   routeNode: RouteNode
 };
 
+/** Renders the route sequence as React Flow nodes and accepts dragged obstacle inserts. */
 export function RouteCanvas({ elements, onAddObstacle, onSelect, selectedId }: RouteCanvasProps) {
   const nodes = useMemo(() => toFlowNodes(elements), [elements]);
   const edges = useMemo(() => toFlowEdges(elements), [elements]);
 
+  /** Converts obstacle drags from the obstacle box into route insert commands. */
   function handleDrop(event: React.DragEvent): void {
     event.preventDefault();
     const type = event.dataTransfer.getData("application/vrl-obstacle");
@@ -68,6 +70,7 @@ export function RouteCanvas({ elements, onAddObstacle, onSelect, selectedId }: R
   );
 }
 
+/** Converts route elements into positioned React Flow nodes. */
 function toFlowNodes(elements: RouteElement[]): Node[] {
   return elements.map((element, index) => {
     const definition = obstacleDefinition(element.type);
@@ -87,6 +90,7 @@ function toFlowNodes(elements: RouteElement[]): Node[] {
   });
 }
 
+/** Connects each route node to the next element in the route sequence. */
 function toFlowEdges(elements: RouteElement[]): Edge[] {
   return elements.slice(1).map((element, index) => ({
     animated: element.type === "rappel" || element.type === "downclimb",
@@ -101,6 +105,7 @@ function toFlowEdges(elements: RouteElement[]): Edge[] {
   }));
 }
 
+/** Renders one obstacle node inside the React Flow canvas. */
 function RouteNode({ data, selected }: NodeProps) {
   const nodeData = data as RouteNodeData;
   const definition = obstacleDefinition(nodeData.element.type);
@@ -119,10 +124,12 @@ function RouteNode({ data, selected }: NodeProps) {
   );
 }
 
+/** Chooses the title shown on a node, preserving custom labels for endpoints. */
 function nodeTitle(element: RouteElement): string {
   return element.type === "start" || element.type === "exit" ? element.label : obstacleDefinition(element.type).title;
 }
 
+/** Builds the compact attribute summary shown in each route node. */
 function routeNodeSummary(element: RouteElement): string {
   const values = Object.values(element.attributes).filter((value) => value !== "");
 

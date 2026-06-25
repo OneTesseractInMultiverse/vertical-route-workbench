@@ -26,10 +26,18 @@ describe("route document", () => {
 
   it("creates fallback random ids when web crypto is unavailable", () => {
     const originalCrypto = globalThis.crypto;
+    const random = vi.spyOn(Math, "random").mockReturnValue(0.123456789);
+    let editorId = "";
     vi.stubGlobal("crypto", undefined);
-    const element = createRouteElement("pool");
-    vi.stubGlobal("crypto", originalCrypto);
-    expect(element.editorId.startsWith("pool-")).toBe(true);
+
+    try {
+      editorId = createRouteElement("pool").editorId;
+    } finally {
+      random.mockRestore();
+      vi.stubGlobal("crypto", originalCrypto);
+    }
+
+    expect(editorId).toBe("pool-4fzzzxjylrx");
   });
 
   it("inserts new obstacles before the exit endpoint", () => {
@@ -38,6 +46,12 @@ describe("route document", () => {
 
   it("updates the route name immutably", () => {
     expect(updateRouteName(createInitialRouteDocument(), "Rio Azul").routeName).toBe("Rio Azul");
+  });
+
+  it("keeps the original route name when updating immutably", () => {
+    const document = createInitialRouteDocument();
+    updateRouteName(document, "Rio Azul");
+    expect(document.routeName).toBe("Quebrada Gata");
   });
 
   it("updates metadata fields immutably", () => {
@@ -73,9 +87,17 @@ describe("route document", () => {
     expect(updateElementLabel(document, "start-start", "Trailhead").elements[0]?.label).toBe("Trailhead");
   });
 
+  it("keeps labels unchanged for unknown elements", () => {
+    expect(updateElementLabel(documentWithRappel(), "missing", "Trailhead")).toEqual(documentWithRappel());
+  });
+
   it("updates an element attribute", () => {
     const document = documentWithRappel();
     expect(updateElementAttribute(document, "rappel-rappel", "height", "42m").elements[1]?.attributes.height).toBe("42m");
+  });
+
+  it("keeps attributes unchanged for unknown elements", () => {
+    expect(updateElementAttribute(documentWithRappel(), "missing", "height", "42m")).toEqual(documentWithRappel());
   });
 
   it("removes non-fixed obstacles", () => {
@@ -89,6 +111,16 @@ describe("route document", () => {
   it("moves a middle obstacle down", () => {
     const document = insertElementBeforeExit(documentWithRappel(), "pool", deterministicIds("pool"));
     expect(moveRouteElement(document, "rappel-rappel", 1).elements.map((element) => element.type)).toEqual(["start", "pool", "rappel", "exit"]);
+  });
+
+  it("does not move obstacles before the start endpoint", () => {
+    const document = insertElementBeforeExit(documentWithRappel(), "pool", deterministicIds("pool"));
+    expect(moveRouteElement(document, "rappel-rappel", -1)).toEqual(document);
+  });
+
+  it("does not move obstacles after the exit endpoint", () => {
+    const document = insertElementBeforeExit(documentWithRappel(), "pool", deterministicIds("pool"));
+    expect(moveRouteElement(document, "pool-pool", 1)).toEqual(document);
   });
 
   it("does not move the start endpoint", () => {

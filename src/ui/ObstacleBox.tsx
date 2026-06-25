@@ -5,6 +5,7 @@ type ObstacleBoxProps = {
   onAddObstacle: (type: ElementType) => void;
 };
 
+/** Renders the draggable/clickable catalog of route obstacles that can be inserted into the route. */
 export function ObstacleBox({ onAddObstacle }: ObstacleBoxProps) {
   return (
     <aside className="glass-panel obstacle-box" aria-label="Obstacle box">

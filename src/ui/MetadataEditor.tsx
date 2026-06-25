@@ -19,6 +19,7 @@ const symbologyOptions = [
   { label: "Spanish", value: "spanish" }
 ] as const;
 
+/** Renders route-level metadata inputs and delegates every change to application state handlers. */
 export function MetadataEditor({ document, onMetadataChange, onRouteNameChange }: MetadataEditorProps) {
   return (
     <section className="glass-panel metadata-panel" aria-label="Route metadata">

@@ -10,6 +10,7 @@ import "./styles/app.css";
 
 const rootElement = document.getElementById("root");
 
+/** Boots the React renderer when Vite/Electron provides the root element. */
 if (rootElement !== null) {
   createRoot(rootElement).render(
     <StrictMode>

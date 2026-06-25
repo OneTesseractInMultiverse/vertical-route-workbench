@@ -18,12 +18,14 @@ const defaultDependencies: VrlPreviewDependencies = {
   renderSvg: renderTopoSvg
 };
 
+/** Creates the preview renderer port backed by the VRL compiler and SVG renderer. */
 export function createVrlPreviewRenderer(dependencies: VrlPreviewDependencies = defaultDependencies): PreviewRenderer {
   return {
     render: (source, document) => renderPreview(source, document, dependencies)
   };
 }
 
+/** Compiles route source and renders SVG only when compilation succeeds. */
 export function renderPreview(
   source: string,
   document: RouteDocument,
@@ -41,6 +43,7 @@ export function renderPreview(
   };
 }
 
+/** Delegates successful compiled output to the SVG renderer with document-selected display options. */
 function renderCompiledSvg(
   model: unknown,
   layout: unknown,
@@ -53,6 +56,7 @@ function renderCompiledSvg(
   });
 }
 
+/** Dependencies used by preview rendering and overridden by unit tests. */
 export type VrlPreviewDependencies = {
   compile: (source: string, options?: unknown) => VrlCompileResult;
   renderSvg: (route: unknown, layout: unknown, options?: unknown) => string;

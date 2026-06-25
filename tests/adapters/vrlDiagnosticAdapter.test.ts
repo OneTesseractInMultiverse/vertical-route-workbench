@@ -3,7 +3,10 @@ import { hasBlockingDiagnostic, toPreviewDiagnostic } from "../../src/adapters/v
 
 describe("VRL diagnostic adapter", () => {
   it("maps VRL diagnostics into preview diagnostics", () => {
-    expect(toPreviewDiagnostic(vrlDiagnostic("warning")).severity).toBe("warning");
+    expect(toPreviewDiagnostic(vrlDiagnostic("warning"))).toEqual({
+      message: "WARNING validation at 1:1: Problem",
+      severity: "warning"
+    });
   });
 
   it("detects blocking diagnostics", () => {
