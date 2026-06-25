@@ -1,0 +1,10 @@
+node_modules/
+.electron/
+dist/
+coverage/
+release/
+.DS_Store
+npm-debug.log*
+.env
+.env.local
+.idea/

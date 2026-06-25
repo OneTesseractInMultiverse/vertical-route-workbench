@@ -1,0 +1,119 @@
+{
+  "name": "vrl-editor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Desktop workbench for creating, editing, and visualizing VRL route files.",
+  "author": "Pedro Guzman",
+  "license": "MIT",
+  "main": ".electron/main.js",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "electron:build": "tsc -p tsconfig.electron.json",
+    "electron:launch": "npm run electron:build && electron .",
+    "electron": "npm start",
+    "start": "concurrently -k -n renderer,electron -c green,blue \"npm run dev\" \"wait-on http://127.0.0.1:5173 && npm run electron:launch\"",
+    "build": "npm run electron:build && vite build",
+    "package:dir": "npm run build && electron-builder --dir",
+    "package:mac": "npm run build && electron-builder --mac dmg zip --x64 --arm64",
+    "package:win": "npm run build && electron-builder --win nsis zip --x64",
+    "package:current": "npm run build && electron-builder",
+    "preview": "vite preview --host 127.0.0.1",
+    "generate:countries": "node scripts/generate-country-data.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.electron.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.2.6",
+    "@subvertic/vrl-core": "^0.1.0",
+    "@subvertic/vrl-render-svg": "^0.1.0",
+    "@xyflow/react": "^12.9.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "@types/node": "^22.15.34",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "concurrently": "^9.2.0",
+    "electron": "^42.5.0",
+    "electron-builder": "^26.15.3",
+    "eslint": "^9.29.0",
+    "globals": "^15.15.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.0",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4",
+    "wait-on": "^8.0.3",
+    "world-countries": "^5.1.0"
+  },
+  "build": {
+    "appId": "org.subvertic.vrl-editor",
+    "productName": "Vertical Route Workbench",
+    "asar": true,
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      ".electron/**/*",
+      "dist/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": ".electron/main.js"
+    },
+    "mac": {
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "artifactName": "${productName}-${version}-win-${arch}.${ext}",
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "oneClick": false,
+      "perMachine": false
+    }
+  }
+}
